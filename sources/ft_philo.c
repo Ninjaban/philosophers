@@ -66,6 +66,58 @@ static void			internal_context_initialize (void)
 	internal_context.table.actual_turn = 0;
 }
 
+static void			ft_print(int y, int x, char *format)
+{
+	pthread_mutex_lock(&internal_context.table.print);
+	wmove(internal_context.table.window, y, x);
+	wprintw(internal_context.table.window, format);
+	pthread_mutex_unlock(&internal_context.table.print);
+}
+
+
+static void			ft_system_log_clear(const uint64_t nb_log)
+{
+	uint64_t		n;
+
+	n = 0;
+	while (n < nb_log)
+	{
+		ft_print(PHILOSOPHER_BOX_Y - 1 + 2 + n, 2, LOG_CLEAR);
+		n = n + 1;
+	}
+}
+
+
+static void			ft_system_log(uint64_t color, t_bool new_turn, char *format)
+{
+	static uint64_t	nb_log = 0;
+
+	pthread_mutex_lock(&internal_context.table.log);
+	if (new_turn)
+	{
+		ft_system_log_clear(nb_log);
+		nb_log = 0;
+	}
+	if (nb_log < SYSTEM_BOX_Y - 4)
+	{
+		wattron(internal_context.table.window, COLOR_PAIR(color));
+		ft_print(PHILOSOPHER_BOX_Y - 1 + 2 + nb_log, 2, format);
+		nb_log += 1;
+		wattron(internal_context.table.window, COLOR_PAIR(1));
+	}
+	pthread_mutex_unlock(&internal_context.table.log);
+}
+
+
+static void			ft_system_log_philo(char *format, char *name)
+{
+	pthread_mutex_lock(&internal_context.table.log_philo);
+	sprintf(internal_context.table.log_philo_buf, format, name);
+	ft_system_log(1, FALSE, internal_context.table.log_philo_buf);
+	wrefresh(internal_context.table.window);
+	pthread_mutex_unlock(&internal_context.table.log_philo);
+}
+
 
 static void 		ft_initialize_stick(void)
 {
@@ -109,7 +161,7 @@ t_bool				ft_eat(t_philo *philo, uint64_t *actual_turn)
 		{
 			philo->action = EAT;
 			n = EAT_T;
-			FT_DEBUG("%s : I'm eating now !", philo->name);
+			ft_system_log_philo("%s : I'm eating now!", philo->name);
 			while (n > 0)
 			{
 				ft_wait(&internal_context.table.actual_turn, *actual_turn);
@@ -122,7 +174,7 @@ t_bool				ft_eat(t_philo *philo, uint64_t *actual_turn)
 			pthread_mutex_unlock(&philo->right->lock);
 			philo->left->is_use = FALSE;
 			philo->right->is_use = FALSE;
-			FT_DEBUG("%s : It was a very good meal !", philo->name);
+			ft_system_log_philo("%s : It was a very good meal!", philo->name);
 			return (TRUE);
 		}
 		pthread_mutex_unlock(&philo->left->lock);
@@ -138,14 +190,14 @@ void				ft_rest(t_philo *philo, uint64_t *actual_turn)
 
 	philo->action = REST;
 	n = REST_T;
-	FT_DEBUG("%s : It's time to sleep !", philo->name);
+	ft_system_log_philo("%s : It's time to sleep!", philo->name);
 	while (n > 0)
 	{
 		ft_wait(&internal_context.table.actual_turn, *actual_turn);
 		*actual_turn = (internal_context.table.time && internal_context.table.start) ? internal_context.table.actual_turn : 0;
 		n -= 1;
 	}
-	FT_DEBUG("%s : I rested !", philo->name);
+	ft_system_log_philo("%s : I rested!", philo->name);
 }
 
 
@@ -155,14 +207,14 @@ void				ft_think(t_philo *philo, uint64_t *actual_turn)
 
 	philo->action = THINK;
 	n = THINK_T;
-	FT_DEBUG("%s : What is the life sence?...", philo->name);
+	ft_system_log_philo("%s : What is the life sence?...", philo->name);
 	while (n > 0)
 	{
 		ft_wait(&internal_context.table.actual_turn, *actual_turn);
 		*actual_turn = (internal_context.table.time && internal_context.table.start) ? internal_context.table.actual_turn : 0;
 		n -= 1;
 	}
-	FT_DEBUG("%s : 42 !", philo->name);
+	ft_system_log_philo("%s : 42!", philo->name);
 }
 
 
@@ -202,8 +254,6 @@ void				*ft_philo(void *arg)
 	philo->life = MAX_LIFE;
 	philo->action = THINK;
 
-	FT_DEBUG("Philosophe n°%" PRIu64 " is initialize", id);
-
 	actual_turn = 0;
 	ft_wait((uint64_t *)(&internal_context.table.start), FALSE);
 
@@ -213,7 +263,7 @@ void				*ft_philo(void *arg)
 		actual_turn = (internal_context.table.time && internal_context.table.start) ? internal_context.table.actual_turn : 0;
 		if (philo->life == 0)
 			break;
-		FT_DEBUG("%s : What can I do now?...", philo->name);
+		ft_system_log_philo("%s : What can I do now?...", philo->name);
 
 		if (philo->life <= THINK_T * 2)
 			ft_try_eat(philo, &actual_turn);
@@ -223,9 +273,6 @@ void				*ft_philo(void *arg)
 			ft_think(philo, &actual_turn);
 		philo->action = THINK;
 	}
-
-	FT_DEBUG("%s%s : I still had %" PRIu64 " life points.%s", COLOR_GREEN, philo->name, philo->life, COLOR_BASE);
-	FT_DEBUG("Philosophe n°%" PRIu64 " is finalize", id);
 
 	return (NULL);
 }
@@ -239,11 +286,7 @@ t_bool					ft_check_dead_philo(void)
 	while (n < NB_PHILOSOPHERS)
 	{
 		if (internal_context.table.list_philo[n].life == 0)
-		{
-//			ft_end();
-			FT_DEBUG("%sSYSTEM : Philosopher %" PRIu64 " (%s) is dead%s", COLOR_RED, n, internal_context.table.list_philo[n].name, COLOR_BASE);
 			return (TRUE);
-		}
 		n = n + 1;
 	}
 	return (FALSE);
@@ -260,6 +303,71 @@ void					ft_reduce_philo_life(void)
 		if (internal_context.table.list_philo[n].action != EAT &&
 			internal_context.table.list_philo[n].life)
 			internal_context.table.list_philo[n].life -= DPS;
+		n = n + 1;
+	}
+}
+
+
+void					ft_print_philo_info(void)
+{
+	uint64_t		n;
+	char			*str;
+	uint64_t		percent;
+	t_philo			philo;
+
+	n = 0;
+	wattron(internal_context.table.window, COLOR_PAIR(6));
+	while (n < NB_PHILOSOPHERS)
+	{
+		philo = internal_context.table.list_philo[n];
+
+		if (philo.action == EAT)
+			str = "  EAT  ";
+		else if (philo.action == REST)
+			str = " REST  ";
+		else
+			str = " THINK ";
+		ft_print(2, (PHILOSOPHER_BOX_X * n) - n + 4, str);
+
+		n = n + 1;
+	}
+	wattron(internal_context.table.window, COLOR_PAIR(1));
+
+	n = 0;
+	while (n < NB_PHILOSOPHERS)
+	{
+		philo = internal_context.table.list_philo[n];
+		percent = philo.life * 100 / MAX_LIFE / 10;
+		if (percent >= 10)
+			str = "IIIIIIIIII";
+		else if (percent == 9)
+			str = "IIIIIIIII ";
+		else if (percent == 8)
+			str = "IIIIIIII  ";
+		else if (percent == 7)
+			str = "IIIIIII   ";
+		else if (percent == 6)
+			str = "IIIIII    ";
+		else if (percent == 5)
+			str = "IIIII     ";
+		else if (percent == 4)
+			str = "IIII      ";
+		else if (percent == 3)
+			str = "III       ";
+		else if (percent == 2)
+			str = "II        ";
+		else if (percent == 1)
+			str = "I         ";
+		else
+			str = "          ";
+		if (percent <= 10 && percent >= 7)
+			wattron(internal_context.table.window, COLOR_PAIR(3));
+		else if (percent <= 6 && percent >= 3)
+			wattron(internal_context.table.window, COLOR_PAIR(4));
+		if (percent <= 2)
+			wattron(internal_context.table.window, COLOR_PAIR(5));
+		ft_print(3, (PHILOSOPHER_BOX_X * n) - n + 2, str);
+		wattron(internal_context.table.window, COLOR_PAIR(1));
 		n = n + 1;
 	}
 }
@@ -288,6 +396,40 @@ t_bool					ft_init_table(void)
 		return (FALSE);
 	}
 
+	/* -- Graphique Initialize */
+	initscr();
+	start_color();
+	internal_context.table.window = newwin(WINDOW_SIZE_Y, WINDOW_SIZE_X, 0, 0);
+	cbreak();
+	noecho();
+	curs_set(0);
+	wrefresh(internal_context.table.window);
+	pthread_mutex_init(&internal_context.table.print, NULL);
+	pthread_mutex_init(&internal_context.table.log, NULL);
+	pthread_mutex_init(&internal_context.table.log_philo, NULL);
+
+	/* -- Init all color pair */
+	init_pair(1, COLOR_WHITE, COLOR_BLACK);
+	init_pair(2, COLOR_CYAN, COLOR_BLACK);
+	init_pair(3, COLOR_GREEN, COLOR_BLACK);
+	init_pair(4, COLOR_YELLOW, COLOR_BLACK);
+	init_pair(5, COLOR_RED, COLOR_BLACK);
+	init_pair(6, COLOR_BLACK, COLOR_WHITE);
+
+	/* -- Draw System Box*/
+	wmove(internal_context.table.window, PHILOSOPHER_BOX_Y - 1, 0);
+	whline(internal_context.table.window, '*', SYSTEM_BOX_X);
+	wmove(internal_context.table.window, PHILOSOPHER_BOX_Y - 1, 0);
+	wvline(internal_context.table.window, '*', SYSTEM_BOX_Y);
+	wmove(internal_context.table.window, PHILOSOPHER_BOX_Y - 1, SYSTEM_BOX_X - 1);
+	wvline(internal_context.table.window, '*', SYSTEM_BOX_Y);
+	wmove(internal_context.table.window, PHILOSOPHER_BOX_Y + SYSTEM_BOX_Y - 2, 0);
+	whline(internal_context.table.window, '*', SYSTEM_BOX_X);
+	wattron(internal_context.table.window, COLOR_PAIR(2));
+	ft_print(PHILOSOPHER_BOX_Y - 1, 3, "System");
+	wattron(internal_context.table.window, COLOR_PAIR(1));
+	wrefresh(internal_context.table.window);
+
 	/* -- Initialize */
 	ft_initialize_stick();
 	ft_create_philo_name();
@@ -295,6 +437,19 @@ t_bool					ft_init_table(void)
 	n = 0;
 	while (n < NB_PHILOSOPHERS)
 	{
+		/* -- Draw Philosopher Box*/
+		wmove(internal_context.table.window, 0, (PHILOSOPHER_BOX_X * n) - n);
+		whline(internal_context.table.window, '*', PHILOSOPHER_BOX_X);
+		wmove(internal_context.table.window, 0, (PHILOSOPHER_BOX_X * n) - n);
+		wvline(internal_context.table.window, '*', PHILOSOPHER_BOX_Y);
+		wmove(internal_context.table.window, 0, (PHILOSOPHER_BOX_X * (n + 1)) - (n + 1));
+		wvline(internal_context.table.window, '*', PHILOSOPHER_BOX_Y);
+		wattron(internal_context.table.window, COLOR_PAIR(2));
+		ft_print(0, (PHILOSOPHER_BOX_X * n) - n + 3, internal_context.table.list_philo[n].name);
+		wattron(internal_context.table.window, COLOR_PAIR(1));
+		ft_print(2, (PHILOSOPHER_BOX_X * n) - n + 2, ">");
+		wrefresh(internal_context.table.window);
+
 		if (pthread_create(&internal_context.table.list_philo_thread[n], NULL, ft_philo, (void *)n) != 0)
 		{
 			FT_ERROR("pthread_create() failed n %" PRIu64, n);
@@ -303,28 +458,46 @@ t_bool					ft_init_table(void)
 		n = n + 1;
 	}
 
+	ft_system_log(5, TRUE, "Game starts in :");
+	wrefresh(internal_context.table.window);
+	sleep(1);
+	ft_print_philo_info();
+	ft_system_log(5, FALSE, "3...");
+	wrefresh(internal_context.table.window);
+	sleep(1);
+	ft_system_log(5, FALSE, "2...");
+	wrefresh(internal_context.table.window);
+	sleep(1);
+	ft_system_log(5, FALSE, "1...");
+	wrefresh(internal_context.table.window);
 	sleep(1);
 
 	/* -- Core */
 	internal_context.table.start = TRUE;
-	FT_DEBUG("Game start ! %s", "");
 
 	while (internal_context.table.time > 0)
 	{
-		FT_DEBUG("%sTurn number %" PRIu64 " !%s", COLOR_BLUE, internal_context.table.actual_turn + 1, COLOR_BASE);
+		sprintf(internal_context.table.log_buf, "Turn number %" PRIu64, internal_context.table.actual_turn);
+		ft_system_log(2, TRUE, internal_context.table.log_buf);
+		wrefresh(internal_context.table.window);
 		internal_context.table.actual_turn += 1;
 		if (ft_check_dead_philo())
 			break;
-		ft_reduce_philo_life();
 
-		sleep(1);
+		sleep(SLEEP_TIME);
+		wrefresh(internal_context.table.window);
+		ft_reduce_philo_life();
+		ft_print_philo_info();
 		internal_context.table.time -= 1;
-		if (!internal_context.table.time)
-		{
-//			ft_end();
-		}
 	}
 
+	/* -- End print */
+	sprintf(internal_context.table.log_buf, "Turn number %" PRIu64, internal_context.table.actual_turn);
+	ft_system_log(2, TRUE, internal_context.table.log_buf);
+	if (!internal_context.table.time)
+		ft_system_log(1, FALSE, TIMEOUT_TXT);
+	wrefresh(internal_context.table.window);
+	wgetch(internal_context.table.window);
 
 	/* -- Finalize */
 	internal_context.table.start = FALSE;
@@ -334,6 +507,10 @@ t_bool					ft_init_table(void)
 		pthread_join(internal_context.table.list_philo_thread[n++], NULL);
 
 	ft_finalize_stick();
+
+	/* -- Graphique Finalize*/
+	delwin(internal_context.table.window);
+	endwin();
 
 	return (TRUE);
 }

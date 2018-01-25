@@ -26,7 +26,7 @@ LIBS		=	$(LIB:%=$(DIRLIB)%)
 OBJS		=	$(SRCS:.c=.o)
 
 CFLAGS		=	-Wall -Wextra -Werror -I./$(DIRINC) -I./$(DIRLIB)$(DIRINC)
-LFLAGS		=   -lpthread
+LFLAGS		=   -lpthread -lncurses
 
 CC	    	=	gcc
 RM		    =	rm -f

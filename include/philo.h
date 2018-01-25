@@ -5,6 +5,7 @@
 #ifndef PHILOSOPHERS_PHILO_H
 #define PHILOSOPHERS_PHILO_H
 
+#include <curses.h>
 #include <pthread.h>
 #include <sys/types.h>
 #include "types.h"
@@ -24,7 +25,7 @@
 #define		EAT_T		(uint64_t)2
 #define		REST_T		(uint64_t)1
 #define		THINK_T		(uint64_t)2
-#define		TIMEOUT		(uint64_t)50
+#define		TIMEOUT		(uint64_t)30
 
 
 /* -- internal macros */
@@ -41,12 +42,20 @@
 #define		DPS				(uint64_t)1
 #define		NB_PHILOSOPHERS	(uint32_t)7
 #define		TIMEOUT_TXT		"Now, it is time... To DAAAAAAAANCE!!!"
+#define		SLEEP_TIME		1
 
-#define		COLOR_BASE		"\033[0m"
-#define		COLOR_RED		"\033[31m"
-#define		COLOR_GREEN		"\033[32m"
-#define		COLOR_YELLOW	"\033[33m"
-#define		COLOR_BLUE		"\033[34m"
+
+/* -- internal graphique macros */
+#define		WINDOW_SIZE_X		94
+#define		WINDOW_SIZE_Y		26
+
+#define		PHILOSOPHER_BOX_X	14
+#define		PHILOSOPHER_BOX_Y	6
+
+#define		SYSTEM_BOX_X		92
+#define		SYSTEM_BOX_Y		18
+
+#define		LOG_CLEAR			"                                                                                        "
 
 
 typedef enum	e_action t_action;
@@ -86,6 +95,12 @@ typedef struct	s_table {
 	t_bool				start;
 	uint64_t			actual_turn;
 	/* -- graphique */
+	WINDOW				*window;
+	pthread_mutex_t		print;
+	pthread_mutex_t		log;
+	pthread_mutex_t		log_philo;
+	char				log_buf[SYSTEM_BOX_X - 4];
+	char				log_philo_buf[SYSTEM_BOX_X - 4];
 	/* -- bonus */
 }				t_table;
 

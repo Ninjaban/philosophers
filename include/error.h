@@ -42,6 +42,6 @@
 					__VA_ARGS__);													\
 	} while (0)
 
-#define	DEBUG_MODE		TRUE
+#define	DEBUG_MODE		FALSE
 
 #endif //NM_OTOOL_ERROR_H
