@@ -21,10 +21,10 @@
 */
 
 #define		MAX_LIFE	(uint64_t)10
-#define		EAT_T		(uint64_t)3
-#define		REST_T		(uint64_t)2
-#define		THINK_T		(uint64_t)3
-#define		TIMEOUT		(uint64_t)30
+#define		EAT_T		(uint64_t)2
+#define		REST_T		(uint64_t)1
+#define		THINK_T		(uint64_t)2
+#define		TIMEOUT		(uint64_t)50
 
 
 /* -- internal macros */
@@ -42,6 +42,13 @@
 #define		NB_PHILOSOPHERS	(uint32_t)7
 #define		TIMEOUT_TXT		"Now, it is time... To DAAAAAAAANCE!!!"
 
+#define		COLOR_BASE		"\033[0m"
+#define		COLOR_RED		"\033[31m"
+#define		COLOR_GREEN		"\033[32m"
+#define		COLOR_YELLOW	"\033[33m"
+#define		COLOR_BLUE		"\033[34m"
+
+
 typedef enum	e_action t_action;
 enum e_action {
 	EAT,
@@ -52,23 +59,34 @@ enum e_action {
 
 /* -- structure */
 typedef struct	s_stick {
+	/* -- core */
 	pthread_mutex_t		lock;
 	t_bool				is_use;
+	/* -- graphique */
+	/* -- bonus */
 }				t_stick;
 
 typedef struct	s_philo {
+	/* -- core */
 	t_stick				*left;
 	t_stick				*right;
 	uint64_t			life;
 	t_action			action;
+	/* -- graphique */
+	/* -- bonus */
+	t_pchar				name;
 }				t_philo;
 
 typedef struct	s_table {
+	/* -- core */
 	t_stick				list_stick[NB_PHILOSOPHERS];
 	t_philo				list_philo[NB_PHILOSOPHERS];
 	pthread_t			list_philo_thread[NB_PHILOSOPHERS];
 	uint64_t			time;
 	t_bool				start;
+	uint64_t			actual_turn;
+	/* -- graphique */
+	/* -- bonus */
 }				t_table;
 
 #endif //PHILOSOPHERS_PHILO_H
