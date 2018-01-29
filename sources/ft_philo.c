@@ -281,15 +281,22 @@ void				*ft_philo(void *arg)
 t_bool					ft_check_dead_philo(void)
 {
 	uint64_t		n;
+	t_bool			ret;
 
 	n = 0;
+	ret = FALSE;
 	while (n < NB_PHILOSOPHERS)
 	{
 		if (internal_context.table.list_philo[n].life == 0)
-			return (TRUE);
+		{
+			ret = TRUE;
+			sprintf(internal_context.table.log_buf, "The philosopher %s is dead", internal_context.table.list_philo[n].name);
+			ft_system_log(5, FALSE, internal_context.table.log_buf);
+			wrefresh(internal_context.table.window);
+		}
 		n = n + 1;
 	}
-	return (FALSE);
+	return (ret);
 }
 
 
@@ -381,7 +388,7 @@ void					ft_create_philo_name(void)
 	internal_context.table.list_philo[3].name = "Marc";
 	internal_context.table.list_philo[4].name = "Guillaume";
 	internal_context.table.list_philo[5].name = "Simon";
-	internal_context.table.list_philo[6].name = "Eric";
+	internal_context.table.list_philo[6].name = "Mel";
 }
 
 
@@ -480,9 +487,9 @@ t_bool					ft_init_table(void)
 		sprintf(internal_context.table.log_buf, "Turn number %" PRIu64, internal_context.table.actual_turn);
 		ft_system_log(2, TRUE, internal_context.table.log_buf);
 		wrefresh(internal_context.table.window);
-		internal_context.table.actual_turn += 1;
 		if (ft_check_dead_philo())
 			break;
+		internal_context.table.actual_turn += 1;
 
 		sleep(SLEEP_TIME);
 		wrefresh(internal_context.table.window);
@@ -492,10 +499,12 @@ t_bool					ft_init_table(void)
 	}
 
 	/* -- End print */
-	sprintf(internal_context.table.log_buf, "Turn number %" PRIu64, internal_context.table.actual_turn);
-	ft_system_log(2, TRUE, internal_context.table.log_buf);
 	if (!internal_context.table.time)
+	{
+		sprintf(internal_context.table.log_buf, "Turn number %" PRIu64, internal_context.table.actual_turn);
+		ft_system_log(2, TRUE, internal_context.table.log_buf);
 		ft_system_log(1, FALSE, TIMEOUT_TXT);
+	}
 	wrefresh(internal_context.table.window);
 	wgetch(internal_context.table.window);
 
