@@ -2,9 +2,9 @@
 // Created by Nathan on 23/01/18.
 //
 
+#include <unistd.h>
 #include "types.h"
 #include "error.h"
-#include "libft.h"
 
 #include "philo.h"
 
