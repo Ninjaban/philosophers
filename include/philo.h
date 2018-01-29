@@ -47,13 +47,13 @@
 
 /* -- internal graphique macros */
 #define		WINDOW_SIZE_X		94
-#define		WINDOW_SIZE_Y		26
+#define		WINDOW_SIZE_Y		30
 
 #define		PHILOSOPHER_BOX_X	14
 #define		PHILOSOPHER_BOX_Y	6
 
 #define		SYSTEM_BOX_X		92
-#define		SYSTEM_BOX_Y		18
+#define		SYSTEM_BOX_Y		22
 
 #define		LOG_CLEAR			"                                                                                        "
 
