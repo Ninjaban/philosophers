@@ -3,12 +3,11 @@
 //
 
 #ifndef PHILOSOPHERS_PHILO_H
-#define PHILOSOPHERS_PHILO_H
+# define PHILOSOPHERS_PHILO_H
 
-#include <curses.h>
-#include <pthread.h>
-#include <sys/types.h>
-#include "types.h"
+# include <curses.h>
+# include <pthread.h>
+# include <sys/types.h>
 
 /* -- default macros */
 /*
@@ -21,12 +20,11 @@
 **	-> TIMEOUT is the duration of the game in second
 */
 
-#define		MAX_LIFE	(uint64_t)10
-#define		EAT_T		(uint64_t)2
-#define		REST_T		(uint64_t)1
-#define		THINK_T		(uint64_t)2
-#define		TIMEOUT		(uint64_t)30
-
+# define		MAX_LIFE	(uint64_t)10
+# define		EAT_T		(uint64_t)2
+# define		REST_T		(uint64_t)1
+# define		THINK_T		(uint64_t)2
+# define		TIMEOUT		(uint64_t)30
 
 /* -- internal macros */
 /*
@@ -38,25 +36,21 @@
 **	-> TIMEOUT_TXT is the displayed text at the end of the game
 */
 
-#define		RESTORED_LIFE	MAX_LIFE
-#define		DPS				(uint64_t)1
-#define		NB_PHILOSOPHERS	(uint32_t)7
-#define		TIMEOUT_TXT		"Now, it is time... To DAAAAAAAANCE!!!"
-#define		SLEEP_TIME		1
-
+# define		RESTORED_LIFE	MAX_LIFE
+# define		DPS				(uint64_t)1
+# define		NB_PHILOSOPHERS	(uint32_t)7
+# define		TIMEOUT_TXT		"Now, it is time... To DAAAAAAAANCE!!!"
+# define		SLEEP_TIME		1
 
 /* -- internal graphique macros */
-#define		WINDOW_SIZE_X		94
-#define		WINDOW_SIZE_Y		30
+# define		WINDOW_SIZE_X		94
+# define		WINDOW_SIZE_Y		30
 
-#define		PHILOSOPHER_BOX_X	14
-#define		PHILOSOPHER_BOX_Y	6
+# define		PHILOSOPHER_BOX_X	14
+# define		PHILOSOPHER_BOX_Y	6
 
-#define		SYSTEM_BOX_X		92
-#define		SYSTEM_BOX_Y		22
-
-#define		LOG_CLEAR			"                                                                                        "
-
+# define		SYSTEM_BOX_X		92
+# define		SYSTEM_BOX_Y		22
 
 typedef enum	e_action t_action;
 enum e_action {
@@ -64,7 +58,6 @@ enum e_action {
 	REST,
 	THINK
 };
-
 
 /* -- structure */
 typedef struct	s_stick {
@@ -104,4 +97,24 @@ typedef struct	s_table {
 	/* -- bonus */
 }				t_table;
 
-#endif //PHILOSOPHERS_PHILO_H
+/* -- Function */
+/*
+**	ft_log.c
+*/
+extern void		ft_print(int y, int x, char *format);
+extern void		ft_system_log(uint64_t color, t_bool new_turn, char *format);
+extern void		ft_system_log_philo(char *format, char *name);
+
+/*
+**	ft_philo_action.c
+*/
+extern void			ft_think(t_philo *philo, uint64_t *actual_turn);
+extern void			ft_try_eat(t_philo *philo, uint64_t *actual_turn);
+extern t_bool		ft_check_other_philo(uint64_t id);
+
+/*
+**	ft_tools.c
+*/
+extern void		ft_wait(const uint64_t *variable, const uint64_t value);
+
+#endif

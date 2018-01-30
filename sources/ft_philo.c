@@ -3,120 +3,19 @@
 //
 
 #include <unistd.h>
+#include "library.h"
 #include "types.h"
 #include "error.h"
-
 #include "philo.h"
 
 /* -- basic check */
-typedef char __check_for_philo_true[ (TRUE == 1) ? 1:-1 ];
-typedef char __check_for_philo_false[ (FALSE == 0) ? 1:-1 ];
-typedef char __check_for_philo_eat_t[ (EAT_T < TIMEOUT) ? 1:-1 ];
-typedef char __check_for_philo_rest_t[ (REST_T < TIMEOUT) ? 1:-1 ];
-typedef char __check_for_philo_think_t[ (THINK_T < TIMEOUT) ? 1:-1 ];
-typedef char __check_for_philo_dps[ (DPS < TIMEOUT) ? 1:-1 ];
-
-
-/* -- library_configuration */
-static struct
-{
-	t_bool	initialized;
-
-	t_bool	debug_mode;
-
-	t_table		table;
-} internal_context = {
-		.initialized	= FALSE,
-
-		.debug_mode	= FALSE
-};
-
-
-/**
- *		internal_context_is_initialize
- *
- *		@param	none
- *
- *		@error	none
- *
- *		@return	TRUE in success, FALSE otherwise
- */
-static t_bool		internal_context_is_initialize (void)
-{
-	return (internal_context.initialized);
-}
-
-
-/* === initialisation function === */
-/**
- *		internal_context_initialize
- *
- *		@param	none
- *
- *		@error	none
- */
-static void			internal_context_initialize (void)
-{
-	internal_context.initialized = TRUE;
-
-	internal_context.debug_mode = DEBUG_MODE;
-
-	internal_context.table.time = TIMEOUT;
-	internal_context.table.start = FALSE;
-	internal_context.table.actual_turn = 0;
-}
-
-static void			ft_print(int y, int x, char *format)
-{
-	pthread_mutex_lock(&internal_context.table.print);
-	wmove(internal_context.table.window, y, x);
-	wprintw(internal_context.table.window, format);
-	pthread_mutex_unlock(&internal_context.table.print);
-}
-
-
-static void			ft_system_log_clear(const uint64_t nb_log)
-{
-	uint64_t		n;
-
-	n = 0;
-	while (n < nb_log)
-	{
-		ft_print(PHILOSOPHER_BOX_Y - 1 + 2 + n, 2, LOG_CLEAR);
-		n = n + 1;
-	}
-}
-
-
-static void			ft_system_log(uint64_t color, t_bool new_turn, char *format)
-{
-	static uint64_t	nb_log = 0;
-
-	pthread_mutex_lock(&internal_context.table.log);
-	if (new_turn)
-	{
-		ft_system_log_clear(nb_log);
-		nb_log = 0;
-	}
-	if (nb_log < SYSTEM_BOX_Y - 4)
-	{
-		wattron(internal_context.table.window, COLOR_PAIR(color));
-		ft_print(PHILOSOPHER_BOX_Y - 1 + 2 + nb_log, 2, format);
-		nb_log += 1;
-		wattron(internal_context.table.window, COLOR_PAIR(1));
-	}
-	pthread_mutex_unlock(&internal_context.table.log);
-}
-
-
-static void			ft_system_log_philo(char *format, char *name)
-{
-	pthread_mutex_lock(&internal_context.table.log_philo);
-	sprintf(internal_context.table.log_philo_buf, format, name);
-	ft_system_log(1, FALSE, internal_context.table.log_philo_buf);
-	wrefresh(internal_context.table.window);
-	pthread_mutex_unlock(&internal_context.table.log_philo);
-}
+typedef char	t__check_for_philo_true[(TRUE == 1) ? 1 : -1];
+typedef char	t__check_for_philo_false[(FALSE == 0) ? 1 : -1];
+typedef char	t__check_for_philo_eat_t[(EAT_T < TIMEOUT) ? 1 : -1];
+typedef char	t__check_for_philo_rest_t[(REST_T < TIMEOUT) ? 1 : -1];
+typedef char	t__check_for_philo_think_t[(THINK_T < TIMEOUT) ? 1 : -1];
+typedef char	t__check_for_philo_dps[(DPS < TIMEOUT) ? 1 : -1];
+typedef char	t__check_for_philo_nb_philo[(NB_PHILOSOPHERS > 1) ? 1 : -1];
 
 
 static void 		ft_initialize_stick(void)
@@ -140,104 +39,6 @@ static void 		ft_finalize_stick(void)
 	id = id + 1;
 	if (id < NB_PHILOSOPHERS)
 		ft_finalize_stick();
-}
-
-
-void				ft_wait(const uint64_t *variable, const uint64_t value)
-{
-	while (*variable == value)
-		;
-}
-
-
-t_bool				ft_eat(t_philo *philo, uint64_t *actual_turn)
-{
-	uint64_t		n;
-
-	if (philo->left->is_use == FALSE && philo->right->is_use == FALSE)
-	{
-		if (!pthread_mutex_trylock(&philo->left->lock) &&
-			!pthread_mutex_trylock(&philo->right->lock))
-		{
-			philo->action = EAT;
-			n = EAT_T;
-			ft_system_log_philo("%s : I'm eating now!", philo->name);
-			while (n > 0)
-			{
-				ft_wait(&internal_context.table.actual_turn, *actual_turn);
-				*actual_turn = (internal_context.table.time && internal_context.table.start) ? internal_context.table.actual_turn : 0;
-				n -= 1;
-			}
-			philo->life = (philo->life + RESTORED_LIFE > MAX_LIFE) ? MAX_LIFE : philo->life + RESTORED_LIFE;
-			philo->action = REST;
-			pthread_mutex_unlock(&philo->left->lock);
-			pthread_mutex_unlock(&philo->right->lock);
-			philo->left->is_use = FALSE;
-			philo->right->is_use = FALSE;
-			ft_system_log_philo("%s : It was a very good meal!", philo->name);
-			return (TRUE);
-		}
-		pthread_mutex_unlock(&philo->left->lock);
-		pthread_mutex_unlock(&philo->right->lock);
-	}
-	return (FALSE);
-}
-
-
-void				ft_rest(t_philo *philo, uint64_t *actual_turn)
-{
-	uint64_t		n;
-
-	philo->action = REST;
-	n = REST_T;
-	ft_system_log_philo("%s : It's time to sleep!", philo->name);
-	while (n > 0)
-	{
-		ft_wait(&internal_context.table.actual_turn, *actual_turn);
-		*actual_turn = (internal_context.table.time && internal_context.table.start) ? internal_context.table.actual_turn : 0;
-		n -= 1;
-	}
-	ft_system_log_philo("%s : I rested!", philo->name);
-}
-
-
-void				ft_think(t_philo *philo, uint64_t *actual_turn)
-{
-	uint64_t		n;
-
-	philo->action = THINK;
-	n = THINK_T;
-	ft_system_log_philo("%s : What is the life sence?...", philo->name);
-	while (n > 0)
-	{
-		ft_wait(&internal_context.table.actual_turn, *actual_turn);
-		*actual_turn = (internal_context.table.time && internal_context.table.start) ? internal_context.table.actual_turn : 0;
-		n -= 1;
-	}
-	ft_system_log_philo("%s : 42!", philo->name);
-}
-
-
-void				ft_try_eat(t_philo *philo, uint64_t *actual_turn)
-{
-	if (ft_eat(philo, actual_turn))
-		ft_rest(philo, actual_turn);
-	else
-		ft_think(philo, actual_turn);
-}
-
-
-t_bool				ft_check_other_philo(uint64_t id)
-{
-	if (internal_context.table.list_philo[(id != 0) ? id - 1 : NB_PHILOSOPHERS - 1].action == EAT)
-		return (FALSE);
-	if (internal_context.table.list_philo[(id != NB_PHILOSOPHERS - 1) ? id + 1 : 0].action == EAT)
-		return (FALSE);
-	if (internal_context.table.list_philo[(id != 0) ? id - 1 : NB_PHILOSOPHERS - 1].life < THINK_T * 2)
-		return (FALSE);
-	if (internal_context.table.list_philo[(id != NB_PHILOSOPHERS - 1) ? id + 1 : 0].life < THINK_T * 2)
-		return (FALSE);
-	return (TRUE);
 }
 
 
