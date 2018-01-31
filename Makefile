@@ -12,11 +12,16 @@
 
 NAME		=   philo
 
-SRC 		=   ft_log.c \
+SRC 		=   library.c \
 				ft_tools.c \
-				library.c \
+				ft_stick.c \
+				ft_ncurses.c \
+				ft_log.c \
 				ft_philo_action.c \
-				ft_philo.c
+				ft_philo_info.c \
+				ft_philo.c \
+				ft_system.c \
+				main.c
 
 DIRSRC  	=	sources/
 DIRINC		=	include/
