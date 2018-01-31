@@ -1,11 +1,19 @@
-//
-// Created by Nathan on 30/01/18.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   library.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/01/31 13:37:53 by jcarra            #+#    #+#             */
+/*   Updated: 2018/01/31 13:37:54 by jcarra           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "error.h"
 #include "types.h"
-#include "library.h"
 #include "philo.h"
+#include "library.h"
 
 /*
 **	internal_context_is_initialize()

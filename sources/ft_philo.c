@@ -3,10 +3,10 @@
 //
 
 #include <unistd.h>
-#include "library.h"
 #include "types.h"
 #include "error.h"
 #include "philo.h"
+#include "library.h"
 
 /* -- basic check */
 typedef char	t__check_for_philo_true[(TRUE == 1) ? 1 : -1];

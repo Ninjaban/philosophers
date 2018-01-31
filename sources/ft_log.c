@@ -1,10 +1,18 @@
-//
-// Created by Nathan on 30/01/18.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_log.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/01/31 13:37:40 by jcarra            #+#    #+#             */
+/*   Updated: 2018/01/31 13:37:54 by jcarra           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "library.h"
 #include "types.h"
 #include "philo.h"
+#include "library.h"
 
 extern void		ft_print(int y, int x, char *format)
 {

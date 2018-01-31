@@ -12,7 +12,11 @@
 
 NAME		=   philo
 
-SRC 		=   ft_philo.c
+SRC 		=   ft_log.c \
+				ft_tools.c \
+				library.c \
+				ft_philo_action.c \
+				ft_philo.c
 
 DIRSRC  	=	sources/
 DIRINC		=	include/
@@ -50,7 +54,7 @@ $(NAME)	:	.libft .hide
 			@chmod 755 .libft
 
 clean		:
-			@if [ -e $(OBJS) ]; \
+			@if [ -e .hide ]; \
 			then \
 				$(RM) $(OBJS) .hide .libft; \
 				$(ECHO) '\r\033[38;5;202m✗ $(NAME)\033[0m\033[0m\n'; \

@@ -6,20 +6,22 @@
 # define LIBRARY_H
 
 /* -- library_configuration */
-extern static struct
+typedef struct	s_internal_context
 {
 	t_bool	initialized;
 
 	t_bool	debug_mode;
 
 	t_table		table;
-} internal_context;
+}				t_internal_context;
+
+extern t_internal_context			internal_context;
 
 /* -- Function */
 /*
 **	library.c
 */
-extern t_bool		internal_context_is_initialize (void);
-extern void			internal_context_initialize (void);
+t_bool			internal_context_is_initialize (void);
+void			internal_context_initialize (void);
 
 #endif

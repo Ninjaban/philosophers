@@ -1,10 +1,18 @@
-//
-// Created by Nathan on 30/01/18.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_philo_action.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/01/31 13:37:44 by jcarra            #+#    #+#             */
+/*   Updated: 2018/01/31 13:37:54 by jcarra           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "library.h"
 #include "types.h"
 #include "philo.h"
+#include "library.h"
 
 static t_bool		ft_eat(t_philo *philo, uint64_t *actual_turn, uint64_t n)
 {
