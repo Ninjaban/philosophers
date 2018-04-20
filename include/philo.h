@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 15:48:42 by jcarra            #+#    #+#             */
-/*   Updated: 2018/01/31 15:56:46 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/04/20 13:51:02 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,11 @@
 **	-> TIMEOUT is the duration of the game in second
 */
 
-# define MAX_LIFE			(uint64_t)10
-# define EAT_T				(uint64_t)2
-# define REST_T				(uint64_t)1
-# define THINK_T			(uint64_t)2
-# define TIMEOUT			(uint64_t)30
+# define MAX_LIFE			(uint64_t)20
+# define EAT_T				(uint64_t)5
+# define REST_T				(uint64_t)3
+# define THINK_T			(uint64_t)5
+# define TIMEOUT			(uint64_t)100
 
 /*
 **	-- internal macros
@@ -54,13 +54,13 @@
 **	-- internal graphique macros
 */
 # define WINDOW_SIZE_X		94
-# define WINDOW_SIZE_Y		30
+# define WINDOW_SIZE_Y		35
 
 # define PHILOSOPHER_BOX_X	14
-# define PHILOSOPHER_BOX_Y	6
+# define PHILOSOPHER_BOX_Y	8
 
 # define SYSTEM_BOX_X		92
-# define SYSTEM_BOX_Y		22
+# define SYSTEM_BOX_Y		23
 
 typedef enum e_action	t_action;
 enum	e_action
@@ -83,6 +83,7 @@ typedef struct	s_philo {
 	t_stick				*right;
 	uint64_t			life;
 	t_action			action;
+	uint64_t			action_percent;
 	t_pchar				name;
 }				t_philo;
 

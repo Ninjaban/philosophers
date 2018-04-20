@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 15:35:48 by jcarra            #+#    #+#             */
-/*   Updated: 2018/01/31 15:45:31 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/04/20 13:53:21 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ static void		ft_init_philo(t_philo *philo, uint64_t id)
 											NB_PHILOSOPHERS - 1) ? id + 1 : 0];
 	philo->life = MAX_LIFE;
 	philo->action = THINK;
+	philo->action_percent = 0;
 }
 
 static void		ft_philo_do(t_philo *philo, uint64_t *actual_turn, uint64_t id)

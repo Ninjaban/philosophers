@@ -6,7 +6,7 @@
 /*   By: jcarra <jcarra@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/31 13:37:44 by jcarra            #+#    #+#             */
-/*   Updated: 2018/01/31 14:23:43 by jcarra           ###   ########.fr       */
+/*   Updated: 2018/04/20 13:59:54 by jcarra           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,9 @@ static t_bool		ft_eat(t_philo *philo, uint64_t *actual_turn, uint64_t n)
 			philo->left->is_use = TRUE;
 			philo->right->is_use = TRUE;
 			ft_system_log_philo("%s : I'm eating now!", philo->name);
-			while (--n > 0)
+			while (n < EAT_T)
 			{
+				philo->action_percent = ++n * 100 / EAT_T / 10;
 				ft_wait(&g_internal_context.table.actual_turn, *actual_turn);
 				*actual_turn = (g_internal_context.table.time &&
 	g_internal_context.table.start) ? g_internal_context.table.actual_turn : 0;
@@ -48,15 +49,16 @@ static void			ft_rest(t_philo *philo, uint64_t *actual_turn)
 	uint64_t		n;
 
 	philo->action = REST;
-	n = REST_T;
+	n = 0;
 	ft_system_log_philo("%s : It's time to sleep!", philo->name);
-	while (n > 0)
+	while (n < REST_T)
 	{
+		philo->action_percent = ++n * 100 / REST_T / 10;
 		ft_wait(&g_internal_context.table.actual_turn, *actual_turn);
 		*actual_turn = (g_internal_context.table.time &&
 						g_internal_context.table.start) ?
 						g_internal_context.table.actual_turn : 0;
-		n -= 1;
+		n += 1;
 	}
 	ft_system_log_philo("%s : I rested!", philo->name);
 }
@@ -66,22 +68,22 @@ extern void			ft_think(t_philo *philo, uint64_t *actual_turn)
 	uint64_t		n;
 
 	philo->action = THINK;
-	n = THINK_T;
+	n = 0;
 	ft_system_log_philo("%s : What is the life sence?...", philo->name);
-	while (n > 0)
+	while (n < THINK_T)
 	{
+		philo->action_percent = ++n * 100 / THINK_T / 10;
 		ft_wait(&g_internal_context.table.actual_turn, *actual_turn);
 		*actual_turn = (g_internal_context.table.time &&
 						g_internal_context.table.start) ?
 						g_internal_context.table.actual_turn : 0;
-		n -= 1;
 	}
 	ft_system_log_philo("%s : 42!", philo->name);
 }
 
 extern void			ft_try_eat(t_philo *philo, uint64_t *actual_turn)
 {
-	if (ft_eat(philo, actual_turn, EAT_T + 1))
+	if (ft_eat(philo, actual_turn, 0))
 		ft_rest(philo, actual_turn);
 	else
 		ft_think(philo, actual_turn);
